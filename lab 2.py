@@ -88,9 +88,20 @@ assert top_word(
     count_word_frequencies(
         split_words(
             "Кот, пёс! Кот. Кот?"
+
+
+
         )
     )
 ) == "кот"
 
 
 print("Все проверки пройдены успешно.)
+
+
+
+
+
+
+
+6083f6258d328147d85359eb06b1406f
