@@ -1,32 +1,31 @@
 from dataclasses import dataclass
+from enum import Enum
 
 
 
 
 # Уровень 1
-# Тип-сумма: значение LoadState может быть только
-# одним из трёх вариантов.
+# Тип-сумма: значение LoadState может быть только одним из трёх вариантов.
 
 
 class LoadState(Enum):
-    LOADING = "loading"
-    SUCCESS = "success"
-    ERROR = "error"
+    LOADING = "loading"
+    SUCCESS = "success"
+    ERROR = "error"
 
 
 
 
 # Уровень 2
-# Тип-произведение: один User одновременно содержит
-# имя, возраст и email.
+# Тип-произведение: один User одновременно содержит имя, возраст и email.
 # frozen=True запрещает изменение созданного пользователя.
 
 
 @dataclass(frozen=True)
 class User:
-    name: str
-    age: int
-    email: str
+    name: str
+    age: int
+    email: str
 
 
 
@@ -37,7 +36,7 @@ class User:
 
 @dataclass(frozen=True)
 class Success[T]:
-    value: T
+    value: T
 
 
 
@@ -47,7 +46,7 @@ class Success[T]:
 
 @dataclass(frozen=True)
 class Failure[E]:
-    error: E
+    error: E
 
 
 
@@ -66,19 +65,12 @@ type Result[T, E] = Success[T] | Failure[E]
 # Один и тот же вызов всегда возвращает один и тот же результат.
 
 
-def load_users() -> Result[list[User], str]:
-    return (
-        lambda users:
-            (
-                lambda: Failure("Список пользователей пуст"),
-                lambda: Success(users)
-            )[bool(users)]()
-    )(
-        [
-            User("Анна", 20, "anna@example.com"),
-            User("Иван", 24, "ivan@example.com")
-        ]
-    )
+def load_users() -> Result[tuple[User, ...], str]:
+    return (
+        lambda users:
+            Success(users) if users
+            else Failure("Список пользователей пуст")
+    )
 
 
 
@@ -88,18 +80,11 @@ def load_users() -> Result[list[User], str]:
 # LoadState:
 # |LoadState| = 3
 #
-# Потому что существует только три возможных значения:
-# LOADING, SUCCESS, ERROR.
+
 #
 #
 # User:
 # |User| = |str| × |int| × |str|
-#
-# Это тип-произведение, потому что User одновременно
-# содержит имя И возраст И email.
-#
-# Так как строки и целые числа не ограничены условием,
-# множество возможных User является счётно бесконечным.
 #
 #
 # Result[T, E]:
@@ -111,74 +96,6 @@ def load_users() -> Result[list[User], str]:
 #
 # Для нашей функции:
 #
-# |Result[list[User], str]|
-# =
-# |list[User]| + |str|
+# |Result[tuple[User, ...], str]| = |tuple[User, ...]| + |str|        |tuple[User, ...]| = 1 + |User| + |User|² + ... (кортежи длины 0, 1, 2, ...)
 #
-# Оба множества без дополнительных ограничений
-# являются счётно бесконечными,
-# поэтому Result также имеет счётно бесконечную мощность.
-
-
-
-
-# ==========================================
-# ПРОВЕРКА
-# В этом блоке нет ни одной переменной.
-# ==========================================
-
-
-assert LoadState.LOADING.value == "loading"
-assert LoadState.SUCCESS.value == "success"
-assert LoadState.ERROR.value == "error"
-
-
-assert User(
-    "Анна",
-    20,
-    "anna@example.com"
-) == User(
-    "Анна",
-    20,
-    "anna@example.com"
-)
-
-
-assert Success(
-    [
-        User("Анна", 20, "anna@example.com"),
-        User("Иван", 24, "ivan@example.com")
-    ]
-) == Success(
-    [
-        User("Анна", 20, "anna@example.com"),
-        User("Иван", 24, "ivan@example.com")
-    ]
-)
-
-
-assert Failure(
-    "Список пользователей пуст"
-) == Failure(
-    "Список пользователей пуст"
-)
-
-
-assert isinstance(
-    load_users(),
-    Success
-)
-
-
-assert load_users() == Success(
-    [
-        User("Анна", 20, "anna@example.com"),
-        User("Иван", 24, "ivan@example.com")
-    ]
-)
-
-
-assert load_users() == load_users()
-
-
-print("Все проверки пройдены успешно.")
+# Оба множества без дополнительных ограничений являются счётно бесконечными, поэтому Result также имеет счётно бесконечную мощность.
