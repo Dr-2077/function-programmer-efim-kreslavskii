@@ -1,0 +1,19 @@
+from functools import partial
+
+
+def filter_by(key):
+    return lambda value: lambda items: tuple(
+        filter(lambda item: item[key] == value, items)
+    )
+
+
+def filter_by_category(value, items):
+    return partial(lambda key, v, i: filter_by(key)(v)(i), "category")(value, items)
+
+
+def greater_than(threshold):
+    return lambda x: x > threshold
+
+
+def select_greater_than(threshold):
+    return lambda numbers: tuple(filter(greater_than(threshold), numbers))
