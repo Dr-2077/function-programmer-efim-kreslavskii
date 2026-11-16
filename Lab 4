@@ -17,3 +17,36 @@ def greater_than(threshold):
 
 def select_greater_than(threshold):
     return lambda numbers: tuple(filter(greater_than(threshold), numbers))
+
+
+
+
+#-------------------------------------
+# Та же программа, но без def и без переменных: только лямбды.
+# Каждая функция передаётся как параметр лямбды (каррирование + partial).
+
+(lambda filter_by, greater_than: (
+    lambda filter_by_category, select_greater_than: (
+        filter_by_category(
+            "food",
+            (
+                {"name": "apple", "category": "food"},
+                {"name": "pen", "category": "office"},
+                {"name": "bread", "category": "food"},
+            ),
+        ),
+        select_greater_than(3)((1, 5, 2, 7, 3, 9)),
+    )
+)(
+    lambda value, items: partial(
+        lambda key, v, i: filter_by(key)(v)(i), "category"
+    )(value, items),
+    lambda threshold: lambda numbers: tuple(
+        filter(greater_than(threshold), numbers)
+    ),
+))(
+    lambda key: lambda value: lambda items: tuple(
+        filter(lambda item: item[key] == value, items)
+    ),
+    lambda threshold: lambda x: x > threshold,
+)
