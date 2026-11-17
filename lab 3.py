@@ -99,3 +99,11 @@ def load_users() -> Result[tuple[User, ...], str]:
 # |Result[tuple[User, ...], str]| = |tuple[User, ...]| + |str|        |tuple[User, ...]| = 1 + |User| + |User|² + ... (кортежи длины 0, 1, 2, ...)
 #
 # Оба множества без дополнительных ограничений являются счётно бесконечными, поэтому Result также имеет счётно бесконечную мощность.
+
+
+
+
+
+
+
+a40c25bcb708a3f113a95adbad3b671d431837a8c37cd4e35fefc2de102923b2
