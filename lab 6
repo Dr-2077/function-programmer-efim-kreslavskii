@@ -98,3 +98,7 @@ result = (lambda orders, compose, cmap, get, option, omap, find_by_id: map(
     # 7. find_by_id — сразу возвращает ленивый итератор из filter (0 или 1)
     lambda items: lambda order_id: filter(lambda o: o["id"] == order_id, items),
 )
+
+
+
+lab 6 зачтено 983ba4c8ea057b24167a8fc07d1395190e94b65644a845b5e2c6a75689fb1577
