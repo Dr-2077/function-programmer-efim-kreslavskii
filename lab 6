@@ -1,0 +1,38 @@
+from functools import reduce
+
+(lambda orders, compose, cmap, get, option, omap, find_by_id: tuple(map(
+    lambda thunk: thunk(),
+    (
+        lambda: tuple(cmap(get("total"))(orders)),
+        lambda: (
+            omap(lambda x: x * 2)(option(5)),
+            omap(lambda x: x * 2)(option(None)),
+        ),
+        lambda: (
+            omap(get("total"))(find_by_id(orders)(2)),
+            omap(get("total"))(find_by_id(orders)(99)),
+        ),
+        lambda: tuple(map(
+            lambda box: (
+                omap(lambda x: x)(box) == box,
+                omap(compose(lambda x: x + 1, lambda x: x * 2))(box)
+                == omap(lambda x: x * 2)(omap(lambda x: x + 1)(box)),
+            ),
+            (option(5), option(None)),
+        )),
+    ),
+)))(
+    (
+        {"id": 1, "total": 100, "status": "paid"},
+        {"id": 2, "total": 250, "status": "new"},
+        {"id": 3, "total": 75, "status": "paid"},
+    ),
+    lambda *fs: reduce(lambda f, g: lambda x: g(f(x)), fs),
+    lambda f: lambda items: map(f, items),
+    lambda key: lambda item: item[key],
+    lambda value: (value,),
+    lambda f: lambda box: (None if box[0] is None else f(box[0]),),
+    lambda items: lambda order_id: (
+        next(filter(lambda o: o["id"] == order_id, items), None),
+    ),
+)
