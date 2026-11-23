@@ -36,3 +36,65 @@ from functools import reduce
         next(filter(lambda o: o["id"] == order_id, items), None),
     ),
 )
+
+
+
+
+-------------------------------------------------------------------------------------------
+
+
+
+
+from functools import reduce
+
+result = (lambda orders, compose, cmap, get, option, omap, find_by_id: map(
+    lambda thunk: thunk(),
+    (
+        thunk for thunk in (
+            lambda: cmap(get("total"))(orders),
+            lambda: (
+                res for res in (
+                    omap(lambda x: x * 2)(option(5)),
+                    omap(lambda x: x * 2)(option(None)),
+                )
+            ),
+            lambda: (
+                res for res in (
+                    omap(get("total"))(find_by_id(orders)(2)),
+                    omap(get("total"))(find_by_id(orders)(99)),
+                )
+            ),
+            lambda: map(
+                lambda make_box: (
+                    res for res in (
+                        list(omap(lambda x: x)(make_box())) == list(make_box()),
+                        list(omap(compose(lambda x: x + 1, lambda x: x * 2))(make_box()))
+                        == list(omap(lambda x: x * 2)(omap(lambda x: x + 1)(make_box()))),
+                    )
+                ),
+                (f for f in (lambda: option(5), lambda: option(None))),
+            ),
+        )
+    ),
+))(
+    # 1. orders — теперь это генератор, а не кортеж
+    (
+        order for order in (
+            {"id": 1, "total": 100, "status": "paid"},
+            {"id": 2, "total": 250, "status": "new"},
+            {"id": 3, "total": 75, "status": "paid"},
+        )
+    ),
+    # 2. compose
+    lambda *fs: reduce(lambda f, g: lambda x: g(f(x)), fs),
+    # 3. cmap
+    lambda f: lambda items: map(f, items),
+    # 4. get
+    lambda key: lambda item: item[key],
+    # 5. option — итератор на 1 элемент (если значение) или на 0 элементов (None)
+    lambda value: (value for _ in range(0 if value is None else 1)),
+    # 6. omap — обыкновенный map (так как пустой итератор)
+    lambda f: lambda box: map(f, box),
+    # 7. find_by_id — сразу возвращает ленивый итератор из filter (0 или 1)
+    lambda items: lambda order_id: filter(lambda o: o["id"] == order_id, items),
+)
